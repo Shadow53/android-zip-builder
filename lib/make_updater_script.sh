@@ -1,12 +1,9 @@
 make_updater_script() {
   UPDATER_FOLDER="${1}/META-INF/com/google/android"
   mkdir -p "${UPDATER_FOLDER}"
-  echo "${ROOT}/update-binary"
-  echo "${UPDATER_FOLDER}/update-binary"
   cp "${ROOT}/update-binary" "${UPDATER_FOLDER}/update-binary"
   UPDATER_DEST="${UPDATER_FOLDER}/updater-script"
   EXTRA_COMMANDS="${2}"
-  echo ${EXTRA_COMMANDS}
 cat > "${UPDATER_DEST}" <<EOT
 ui_print("--------------------------------------");
 ui_print("Mounting system");

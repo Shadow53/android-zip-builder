@@ -1,5 +1,13 @@
+download_source() {
+  local SRC="${1}"
+  local DEST="${2}"
+  echo "Downloading file to ${DEST}"
+  wget -c -O "${DEST}" "${SRC}" &>/dev/null
+}
+
 make_md5sum_file() {
   local ROOT="$(pwd)"
+  echo "Calculating checksum of ${1}"
   cd "${1%/*}"
   md5sum "${1##*/}" > "${1}.md5"
 }
@@ -7,7 +15,8 @@ make_md5sum_file() {
 zip_folder() {
   local ROOT="$(pwd)"
   cd "${1}"
-  zip -r "${2}.zip" "."
+  echo "Creating ${2}.zip"
+  zip -r "${2}.zip" "." &>/dev/null
   cd "${ROOT}"
 }
 
@@ -21,4 +30,9 @@ verify_url() {
     *"404 Not Found"*) return 2 ;;
     *) return 1 ;;
   esac
+}
+
+clean_up() {
+  echo "Cleaning up"
+  rm -r "${TMP}"
 }

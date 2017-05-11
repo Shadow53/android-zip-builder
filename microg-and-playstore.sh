@@ -1,10 +1,16 @@
+if [ "${BASH_SOURCE%/*}" = ${BASH_SOURCE} ] || [ "${BASH_SOURCE%/*}" = "." ] ; then
+  source "./lib/include_all.sh"
+else
+  source "${BASH_SOURCE%/*}"/lib/include_all.sh
+fi
+
 GMS_SRC="https://microg.org/fdroid/repo/com.google.android.gms-10545440.apk"
 GMS_DEST="/system/app/GmsCore/GmsCore.apk"
 GSF_SRC="https://microg.org/fdroid/repo/com.google.android.gsf-8.apk"
 GSF_DEST="/system/app/GsfProxy/GsfProxy.apk"
 FAKESTORE_SRC="https://microg.org/fdroid/repo/com.android.vending-16.apk"
 FAKESTORE_DEST="/system/priv-app/FakeStore/FakeStore.apk"
-PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.android.vending/14/240-320-480/80771700.apk?raw=true"
+PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.android.vending/14/240-320-480/80781600.apk?raw=true"
 PLAYSTORE_DEST="/system/priv-app/PlayStore/PlayStore.apk"
 
 build_microg_without_playstore() {
@@ -20,9 +26,9 @@ build_microg_without_playstore() {
   make_parents "${BASE}${GSF_DEST}"
   make_parents "${BASE}${FAKESTORE_DEST}"
 
-  wget -c -O "${BASE}${GMS_DEST}" "${GMS_SRC}"
-  wget -c -O "${BASE}${GSF_DEST}" "${GSF_SRC}"
-  wget -c -O "${BASE}${FAKESTORE_DEST}" "${FAKESTORE_SRC}"
+  download_source "${GMS_SRC}" "${BASE}${GMS_DEST}"
+  download_source "${GSF_SRC}" "${BASE}${GSF_DEST}"
+  download_source "${FAKESTORE_SRC}" "${BASE}${FAKESTORE_DEST}"
 
 local SCRIPT=$(cat <<EOF
 ui_print("Removing any conflicting apps");
@@ -58,9 +64,9 @@ build_microg_with_playstore() {
   make_parents "${BASE}${GSF_DEST}"
   make_parents "${BASE}${PLAYSTORE_DEST}"
 
-  wget -c -O "${BASE}${GMS_DEST}" "${GMS_SRC}"
-  wget -c -O "${BASE}${GSF_DEST}" "${GSF_SRC}"
-  wget -c -O "${BASE}${PLAYSTORE_DEST}" "${PLAYSTORE_SRC}"
+  download_source "${GMS_SRC}" "${BASE}${GMS_DEST}"
+  download_source "${GSF_SRC}" "${BASE}${GSF_DEST}"
+  download_source "${PLAYSTORE_SRC}" "${BASE}${PLAYSTORE_DEST}"
 
 local SCRIPT=$(cat <<EOF
 ui_print("Removing any conflicting apps");
@@ -92,7 +98,7 @@ build_standalone_playstore() {
   BASE="${TMP}${ZIP_NAME}"
 
   make_parents "${BASE}${PLAYSTORE_DEST}"
-  wget -c -O "${BASE}${PLAYSTORE_DEST}" "${PLAYSTORE_SRC}"
+  download_source "${PLAYSTORE_SRC}" "${BASE}${PLAYSTORE_DEST}"
 
 local SCRIPT=$(cat <<EOF
 ui_print("Removing any conflicting apps");
@@ -109,3 +115,5 @@ EOF
 build_microg_with_playstore
 build_microg_without_playstore
 build_standalone_playstore
+
+clean_up

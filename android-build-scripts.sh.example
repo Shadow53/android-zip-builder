@@ -1,14 +1,14 @@
-#########################################
-               IMPORTANT
-This file needs to be found in the user's
-home directory under the following path:
-~/.config/android-build-scripts.sh
-#########################################
+############################################
+#                IMPORTANT
+# This file needs to be found in the user's
+# home directory under the following path:
+# ~/.config/android-build-scripts.sh
+############################################
 
 # The location to build the zips. Defaults to calling directory
-HOME="$(pwd)"
+ROOT="$(pwd)"
 # The location to place the built zips when finished
-DEST="${HOME}/build/"
+DEST="${ROOT}/build/"
 # The directory to download files to while building
 # Will be created and deleted during the build process
 TMP="/tmp/android-build/"

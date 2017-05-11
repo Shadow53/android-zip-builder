@@ -1,3 +1,9 @@
+if [ "${BASH_SOURCE%/*}" = ${BASH_SOURCE} ] || [ "${BASH_SOURCE%/*}" = "." ] ; then
+  source "./lib/include_all.sh"
+else
+  source "${BASH_SOURCE%/*}"/lib/include_all.sh
+fi
+
 # The swipe libraries are arch-specific :/
 KEYBOARDDECODER_X86_64_SRC="https://github.com/opengapps/x86_64/blob/master/lib64/23/libjni_keyboarddecoder.so?raw=true"
 KEYBOARDDECODER_X86_SRC="https://github.com/opengapps/x86/blob/master/lib/23/libjni_keyboarddecoder.so?raw=true"
@@ -18,8 +24,8 @@ build_swipe_lib_arm() {
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
   make_parents "${BASE}${LATINIMEGOOGLE_32_DEST}"
-  wget -c -O "${BASE}${KEYBOARDDECODER_32_DEST}" "${KEYBOARDDECODER_ARM_SRC}"
-  wget -c -O "${BASE}${LATINIMEGOOGLE_32_DEST}" "${LATINIMEGOOGLE_ARM_SRC}"
+  download_source "${KEYBOARDDECODER_ARM_SRC}" "${BASE}${KEYBOARDDECODER_32_DEST}"
+  download_source "${LATINIMEGOOGLE_ARM_SRC}" "${BASE}${LATINIMEGOOGLE_32_DEST}"
   make_updater_script "${BASE}"
   make_addond_script "${BASE}" "${KEYBOARDDECODER_32_DEST};${LATINIMEGOOGLE_32_DEST}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
@@ -31,8 +37,8 @@ build_swipe_lib_arm64() {
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"
   make_parents "${BASE}${LATINIMEGOOGLE_64_DEST}"
-  wget -c -O "${BASE}${KEYBOARDDECODER_64_DEST}" "${KEYBOARDDECODER_ARM64_SRC}"
-  wget -c -O "${BASE}${LATINIMEGOOGLE_64_DEST}" "${LATINIMEGOOGLE_ARM64_SRC}"
+  download_source "${KEYBOARDDECODER_ARM64_SRC}" "${BASE}${KEYBOARDDECODER_64_DEST}"
+  download_source "${LATINIMEGOOGLE_ARM64_SRC}" "${BASE}${LATINIMEGOOGLE_64_DEST}"
   make_updater_script "${BASE}"
   make_addond_script "${BASE}" "${KEYBOARDDECODER_64_DEST};${LATINIMEGOOGLE_64_DEST}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
@@ -44,8 +50,8 @@ build_swipe_lib_x86() {
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
   make_parents "${BASE}${LATINIMEGOOGLE_32_DEST}"
-  wget -c -O "${BASE}${KEYBOARDDECODER_32_DEST}" "${KEYBOARDDECODER_X86_SRC}"
-  wget -c -O "${BASE}${LATINIMEGOOGLE_32_DEST}" "${LATINIMEGOOGLE_X86_SRC}"
+  download_source "${KEYBOARDDECODER_X86_SRC}" "${BASE}${KEYBOARDDECODER_32_DEST}"
+  download_source "${LATINIMEGOOGLE_X86_SRC}" "${BASE}${LATINIMEGOOGLE_32_DEST}"
   make_updater_script "${BASE}"
   make_addond_script "${BASE}" "${KEYBOARDDECODER_32_DEST};${LATINIMEGOOGLE_32_DEST}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
@@ -57,10 +63,17 @@ build_swipe_lib_x86_64() {
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"
   make_parents "${BASE}${LATINIMEGOOGLE_64_DEST}"
-  wget -c -O "${BASE}${KEYBOARDDECODER_64_DEST}" "${KEYBOARDDECODER_X86_64_SRC}"
-  wget -c -O "${BASE}${LATINIMEGOOGLE_64_DEST}" "${LATINIMEGOOGLE_X86_64_SRC}"
+  download_source "${KEYBOARDDECODER_X86_64_SRC}" "${BASE}${KEYBOARDDECODER_64_DEST}"
+  download_source "${LATINIMEGOOGLE_X86_64_SRC}" "${BASE}${LATINIMEGOOGLE_64_DEST}"
   make_updater_script "${BASE}"
   make_addond_script "${BASE}" "${KEYBOARDDECODER_64_DEST};${LATINIMEGOOGLE_64_DEST}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
+
+build_swipe_lib_x86_64
+build_swipe_lib_x86
+build_swipe_lib_arm
+build_swipe_lib_arm64
+
+clean_up

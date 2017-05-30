@@ -4,7 +4,7 @@ else
   source "${BASH_SOURCE%/*}"/lib/include_all.sh
 fi
 
-GMS_SRC="https://microg.org/fdroid/repo/com.google.android.gms-10545440.apk"
+GMS_SRC="https://microg.org/fdroid/repo/com.google.android.gms-10545451.apk"
 GMS_DEST="/system/app/GmsCore/GmsCore.apk"
 GSF_SRC="https://microg.org/fdroid/repo/com.google.android.gsf-8.apk"
 GSF_DEST="/system/app/GsfProxy/GsfProxy.apk"

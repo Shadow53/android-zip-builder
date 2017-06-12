@@ -15,6 +15,10 @@ make_md5sum_file() {
 zip_folder() {
   local ROOT="$(pwd)"
   cd "${1}"
+  # Remove existing zip if recreating it
+  if [ -f "${2}.zip" ] ; then
+    rm "${2}.zip"
+  fi
   echo "Creating ${2}.zip"
   zip -r "${2}.zip" "." &>/dev/null
   cd "${ROOT}"

@@ -18,6 +18,7 @@ ui_print("Setting permissions");
 assert(set_metadata_recursive("/system/app", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755) == "");
 assert(set_metadata_recursive("/system/priv-app", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755) == "");
 assert(set_metadata_recursive("/system/etc/permissions", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755) == "");
+assert(set_metadata_recursive("/system/etc/default-permissions", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755) == "");
 assert(set_metadata_recursive("/system/fonts", "uid", 0, "gid", 0, "fmode", 0644, "dmode", 0755) == "");
 ui_print("Permissions set");
 

@@ -4,13 +4,13 @@ else
   source "${BASH_SOURCE%/*}"/lib/include_all.sh
 fi
 
-GMS_SRC="https://microg.org/fdroid/repo/com.google.android.gms-10545451.apk"
+GMS_SRC="https://microg.org/fdroid/repo/com.google.android.gms-11059462.apk"
 GMS_DEST="/system/app/GmsCore/GmsCore.apk"
 GSF_SRC="https://microg.org/fdroid/repo/com.google.android.gsf-8.apk"
 GSF_DEST="/system/app/GsfProxy/GsfProxy.apk"
 FAKESTORE_SRC="https://microg.org/fdroid/repo/com.android.vending-16.apk"
 FAKESTORE_DEST="/system/priv-app/FakeStore/FakeStore.apk"
-PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.android.vending/14/240-320-480/80795200.apk?raw=true"
+PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.android.vending/14/240-320-480/80798000.apk?raw=true"
 PLAYSTORE_DEST="/system/priv-app/PlayStore/PlayStore.apk"
 
 build_microg_without_playstore() {

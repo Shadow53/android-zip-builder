@@ -15,6 +15,7 @@ BACKUP_TRANSPORT_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.
 BACKUP_TRANSPORT_DEST="/system/priv-app/GoogleBackupTransport/GoogleBackupTransport.apk"
 
 build_contacts_sync() {
+  reset
   ZIP_NAME="contacts-sync"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${CONTACTS_ADAPTER_DEST}"
@@ -22,13 +23,16 @@ build_contacts_sync() {
   download_source "${CONTACTS_ADAPTER_SRC}" "${BASE}${CONTACTS_ADAPTER_DEST}"
   download_source "${BACKUP_TRANSPORT_SRC}" "${BASE}${BACKUP_TRANSPORT_DEST}"
   make_updater_script "${BASE}"
-  add_default_perms "${BASE}" "com.google.android.syncadapters.contacts" "READ_CONTACTS;WRITE_CONTACTS;GET_ACCOUNTS"
-  make_addond_script "${BASE}" "${CONTACTS_ADAPTER_DEST};${BACKUP_TRANSPORT_DEST};/system/etc/default-permissions/com.google.android.syncadapters.contacts-permissions.xml"
+  add_default_perms "${BASE}" "com.google.android.syncadapters.contacts" "READ_CONTACTS;WRITE_CONTACTS;GET_ACCOUNTS;USE_CREDENTIALS;READ_SYNC_SETTINGS;WRITE_SYNC_SETTINGS"
+  addond_backup_file "${CONTACTS_ADAPTER_DEST}"
+  addond_backup_file "${BACKUP_TRANSPORT_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_calendar_sync() {
+  reset
   ZIP_NAME="calendar-sync"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${CALENDAR_ADAPTER_DEST}"
@@ -36,13 +40,16 @@ build_calendar_sync() {
   download_source "${CALENDAR_ADAPTER_SRC}" "${BASE}${CALENDAR_ADAPTER_DEST}"
   download_source "${BACKUP_TRANSPORT_SRC}" "${BASE}${BACKUP_TRANSPORT_DEST}"
   make_updater_script "${BASE}"
-  add_default_perms "${BASE}" "com.google.android.syncadapters.calendar" "READ_CALENDAR;WRITE_CALENDAR"
-  make_addond_script "${BASE}" "${CALENDAR_ADAPTER_DEST};${BACKUP_TRANSPORT_DEST};/system/etc/default-permissions/com.google.android.syncadapters.calendar-permissions.xml"
+  add_default_perms "${BASE}" "com.google.android.syncadapters.calendar" "READ_CALENDAR;WRITE_CALENDAR;USE_CREDENTIALS;READ_SYNC_SETTINGS;WRITE_SYNC_SETTINGS"
+  addond_backup_file "${CALENDAR_ADAPTER_DEST}"
+  addond_backup_file "${BACKUP_TRANSPORT_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_contacts_calendar_sync() {
+  reset
   ZIP_NAME="contacts-calendar-sync"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${CONTACTS_ADAPTER_DEST}"
@@ -52,9 +59,12 @@ build_contacts_calendar_sync() {
   download_source "${CALENDAR_ADAPTER_SRC}" "${BASE}${CALENDAR_ADAPTER_DEST}"
   download_source "${BACKUP_TRANSPORT_SRC}" "${BASE}${BACKUP_TRANSPORT_DEST}"
   make_updater_script "${BASE}"
-  add_default_perms "${BASE}" "com.google.android.syncadapters.contacts" "READ_CONTACTS;WRITE_CONTACTS;GET_ACCOUNTS"
-  add_default_perms "${BASE}" "com.google.android.syncadapters.calendar" "READ_CALENDAR;WRITE_CALENDAR"
-  make_addond_script "${BASE}" "${CONTACTS_ADAPTER_DEST};${CALENDAR_ADAPTER_DEST};${BACKUP_TRANSPORT_DEST};/system/etc/default-permissions/com.google.android.syncadapters.contacts-permissions.xml;/system/etc/default-permissions/com.google.android.syncadapters.calendar-permissions.xml"
+  add_default_perms "${BASE}" "com.google.android.syncadapters.contacts" "READ_CONTACTS;WRITE_CONTACTS;GET_ACCOUNTS;USE_CREDENTIALS;READ_SYNC_SETTINGS;WRITE_SYNC_SETTINGS"
+  add_default_perms "${BASE}" "com.google.android.syncadapters.calendar" "READ_CALENDAR;WRITE_CALENDAR;USE_CREDENTIALS;READ_SYNC_SETTINGS;WRITE_SYNC_SETTINGS"
+  addond_backup_file "${CONTACTS_ADAPTER_DEST}"
+  addond_backup_file "${CALENDAR_ADAPTER_DEST}"
+  addond_backup_file "${BACKUP_TRANSPORT_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
@@ -63,4 +73,4 @@ build_contacts_sync
 build_calendar_sync
 build_contacts_calendar_sync
 
-#clean_up
+clean_up

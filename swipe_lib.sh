@@ -20,6 +20,7 @@ LATINIMEGOOGLE_32_DEST="/system/lib/libjni_latinimegoogle.so"
 LATINIMEGOOGLE_64_DEST="/system/lib64/libjni_latinimegoogle.so"
 
 build_swipe_lib_arm() {
+  reset
   ZIP_NAME="swipelib-arm"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
@@ -27,12 +28,15 @@ build_swipe_lib_arm() {
   download_source "${KEYBOARDDECODER_ARM_SRC}" "${BASE}${KEYBOARDDECODER_32_DEST}"
   download_source "${LATINIMEGOOGLE_ARM_SRC}" "${BASE}${LATINIMEGOOGLE_32_DEST}"
   make_updater_script "${BASE}"
-  make_addond_script "${BASE}" "${KEYBOARDDECODER_32_DEST};${LATINIMEGOOGLE_32_DEST}"
+  addond_backup_file "${KEYBOARDDECODER_32_DEST}"
+  addond_backup_file "${LATINIMEGOOGLE_32_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_swipe_lib_arm64() {
+  reset
   ZIP_NAME="swipelib-arm64"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"
@@ -40,12 +44,15 @@ build_swipe_lib_arm64() {
   download_source "${KEYBOARDDECODER_ARM64_SRC}" "${BASE}${KEYBOARDDECODER_64_DEST}"
   download_source "${LATINIMEGOOGLE_ARM64_SRC}" "${BASE}${LATINIMEGOOGLE_64_DEST}"
   make_updater_script "${BASE}"
-  make_addond_script "${BASE}" "${KEYBOARDDECODER_64_DEST};${LATINIMEGOOGLE_64_DEST}"
+  addond_backup_file "${KEYBOARDDECODER_64_DEST}"
+  addond_backup_file "${LATINIMEGOOGLE_64_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_swipe_lib_x86() {
+  reset
   ZIP_NAME="swipelib-x86"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
@@ -53,12 +60,15 @@ build_swipe_lib_x86() {
   download_source "${KEYBOARDDECODER_X86_SRC}" "${BASE}${KEYBOARDDECODER_32_DEST}"
   download_source "${LATINIMEGOOGLE_X86_SRC}" "${BASE}${LATINIMEGOOGLE_32_DEST}"
   make_updater_script "${BASE}"
-  make_addond_script "${BASE}" "${KEYBOARDDECODER_32_DEST};${LATINIMEGOOGLE_32_DEST}"
+  addond_backup_file "${KEYBOARDDECODER_32_DEST}"
+  addond_backup_file "${LATINIMEGOOGLE_32_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_swipe_lib_x86_64() {
+  reset
   ZIP_NAME="swipelib-x86_64"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"
@@ -66,7 +76,9 @@ build_swipe_lib_x86_64() {
   download_source "${KEYBOARDDECODER_X86_64_SRC}" "${BASE}${KEYBOARDDECODER_64_DEST}"
   download_source "${LATINIMEGOOGLE_X86_64_SRC}" "${BASE}${LATINIMEGOOGLE_64_DEST}"
   make_updater_script "${BASE}"
-  make_addond_script "${BASE}" "${KEYBOARDDECODER_64_DEST};${LATINIMEGOOGLE_64_DEST}"
+  addond_backup_file "${KEYBOARDDECODER_64_DEST}"
+  addond_backup_file "${LATINIMEGOOGLE_64_DEST}"
+  make_addond_script "${BASE}"
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }

@@ -1,23 +1,24 @@
+addond_backup_file() {
+  # Add the item to the list
+  local PREFIX="/system/"
+  ADDOND_BACKUP_FILES=$"${ADDOND_BACKUP_FILES}
+${1##$PREFIX}"
+}
+
+addond_remove_file() {
+  ADDOND_REMOVE_FILES=$"${ADDOND_REMOVE_FILES}
+rm -rf ${1}"
+}
+
 make_addond_script() {
-  ADDOND_FOLDER="${1}/system/addon.d"
-  mkdir -p "${ADDOND_FOLDER}"
-  local file_name="${1##*/}"
-  ADDOND_DEST="${ADDOND_FOLDER}/01-${file_name}.sh" # Should pull the zip's name without .zip
-  # Define ADDOND_BACKUP_FILES so that they can be concat'd with a prefix "/system/"
-  # For now, just code the newlines into the argument
-  ADDOND_BACKUP_FILES=""
-  PREFIX="/system/"
-  # From https://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash#918931
-  while IFS=';' read -ra ADDR; do
-      for file in "${ADDR[@]}"; do
-          ADDOND_BACKUP_FILES=$"${ADDOND_BACKUP_FILES}
-${file##$PREFIX}"
-      done
-  done <<< "${2}"
-  #for file in ${ADDONS_FILES[@]}
-  #do
-  #  ADDOND_BACKUP_FILES="${ADDOND_BACKUP_FILES}\n${file%$PREFIX}"
-  #done
+  # Don't make file if nothing is saved
+  if [ -n "{$ADDOND_BACKUP_FILES}" ]; then
+    ADDOND_FOLDER="${1}/system/addon.d"
+    mkdir -p "${ADDOND_FOLDER}"
+    local file_name="${1##*/}"
+    ADDOND_DEST="${ADDOND_FOLDER}/01-${file_name}.sh" # Should pull the zip's name without .zip
+    # Define ADDOND_BACKUP_FILES so that they can be concat'd with a prefix "/system/"
+    # For now, just code the newlines into the argument
 
   # All $s in the heredoc script are escaped so they are not expanded
 cat > "${ADDOND_DEST}" <<EOT
@@ -50,6 +51,7 @@ case "\$1" in
       [ -n "\$REPLACEMENT" ] && R="\$S/\$REPLACEMENT"
       [ -f "\$C/\$S/\$FILE" -o -L "\$C/\$S/\$FILE" ] && restore_file \$S/"\$FILE" "\$R"
     done
+    ${ADDOND_REMOVE_FILES}
   ;;
   pre-backup)
     #Stub
@@ -65,4 +67,5 @@ case "\$1" in
   ;;
 esac
 EOT
+fi
 }

@@ -9,11 +9,29 @@ GMS_DEST="/system/app/GmsCore/GmsCore.apk"
 GSF_SRC="https://microg.org/fdroid/repo/com.google.android.gsf-8.apk"
 GSF_DEST="/system/app/GsfProxy/GsfProxy.apk"
 FAKESTORE_SRC="https://microg.org/fdroid/repo/com.android.vending-16.apk"
-FAKESTORE_DEST="/system/priv-app/FakeStore/FakeStore.apk"
-PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-app/com.android.vending/14/240-320-480/80802200.apk?raw=true"
-PLAYSTORE_DEST="/system/priv-app/PlayStore/PlayStore.apk"
+#PLAYSTORE_SRC="https://github.com/opengapps/all/blob/master/priv-PlayStoreapp/com.android.vending/14/240-320-480/80802200.apk?raw=true"
+PLAYSTORE_SRC="https://github.com/Nanolx/NanoMod/blob/master/Overlay/system/priv-app/Phonesky/Phonesky.apk?raw=true"
+PLAYSTORE_DEST="/system/priv-app/Phonesky/Phonesky.apk"
+PLAYSTORE_DIFF="https://raw.githubusercontent.com/Nanolx/NanoMod/master/doc/Phonesky.diff"
+
+extract_microg_libs() {
+  # Unzip the microG library because we're installing to /system
+  local PARENT="${1}"
+  local ROOT="$(pwd)"
+  cd "${PARENT%/*}"
+  echo "Extracting libraries from GmsCore"
+  unzip "${PARENT}" "lib*" &>/dev/null
+  cd "${ROOT}"
+
+  addond_backup_file "/system/app/GmsCore/lib/x86/libvtm-jni.so"
+  addond_backup_file "/system/app/GmsCore/lib/x86_64/libvtm-jni.so"
+  addond_backup_file "/system/app/GmsCore/lib/arm64-v8a/libvtm-jni.so"
+  addond_backup_file "/system/app/GmsCore/lib/armeabi/libvtm-jni.so"
+  addond_backup_file "/system/app/GmsCore/lib/armeabi-v7a/libvtm-jni.so"
+}
 
 build_microg_without_playstore() {
+  reset
   # Verify URLs
   if [ verify_url "${GMS_SRC}" &>/dev/null ]; then exit 1; fi;
   if [ verify_url "${GSF_SRC}"  &>/dev/null ]; then exit 1; fi;
@@ -24,35 +42,49 @@ build_microg_without_playstore() {
 
   make_parents "${BASE}${GMS_DEST}"
   make_parents "${BASE}${GSF_DEST}"
-  make_parents "${BASE}${FAKESTORE_DEST}"
+  make_parents "${BASE}${PLAYSTORE_DEST}"
 
   download_source "${GMS_SRC}" "${BASE}${GMS_DEST}"
   download_source "${GSF_SRC}" "${BASE}${GSF_DEST}"
-  download_source "${FAKESTORE_SRC}" "${BASE}${FAKESTORE_DEST}"
+  download_source "${FAKESTORE_SRC}" "${BASE}${PLAYSTORE_DEST}"
 
-local SCRIPT=$(cat <<EOF
-ui_print("Removing any conflicting apps");
-delete_recursive("/system/app/GmsCore", "/system/priv-app/GmsCore", "/system/priv-app/GmsCore_update", "/system/app/PrebuiltGmsCore", "/system/priv-app/PrebuiltGmsCore", "/system/priv-app/GmsCoreSetupPrebuilt");
-delete_recursive("/system/priv-app/PlayStore", "/system/priv-app/FakeStore", "/system/priv-app/Phonesky");
-delete_recursive("/system/app/GsfProxy", "/system/priv-app/GoogleServicesFramework", "/system/priv-app/GoogleLoginService");
-EOF
-)
+  # Remove any conflicting gapps installs
+  updater_remove_files "/system/app/GmsCore"
+  updater_remove_files "/system/priv-app/GmsCore"
+  updater_remove_files "/system/priv-app/GmsCore_update"
+  updater_remove_files "/system/app/PrebuiltGmsCore"
+  updater_remove_files "/system/priv-app/PrebuiltGmsCore"
+  updater_remove_files "/system/priv-app/GmsCoreSetupPrebuilt"
+  updater_remove_files "/system/priv-app/PlayStore"
+  updater_remove_files "/system/priv-app/FakeStore"
+  updater_remove_files "/system/priv-app/Phonesky"
+  updater_remove_files "/system/app/GsfProxy"
+  updater_remove_files "/system/priv-app/GoogleServicesFramework"
+  updater_remove_files "/system/priv-app/GoogleLoginService"
+
+  addond_backup_file "${GMS_DEST}"
+  addond_backup_file "${GSF_DEST}"
+  addond_backup_file "${PLAYSTORE_DEST}"
 
   make_updater_script "${BASE}" "${SCRIPT}"
-  make_addond_script "${BASE}" "${GMS_DEST};${GSF_DEST};${FAKESTORE_DEST};/system/app/GmsCore/lib/x86/libvtm-jni.so;/system/app/GmsCore/lib/x86_64/libvtm-jni.so;/system/app/GmsCore/lib/arm64-v8a/libvtm-jni.so;/system/app/GmsCore/lib/armeabi/libvtm-jni.so;/system/app/GmsCore/lib/armeabi-v7a/libvtm-jni.so"
 
-  # Unzip the microG library because we're installing to /system
-  local ROOT="$(pwd)"
-  PARENT="${BASE}${GMS_DEST}"
-  cd "${PARENT%/*}"
-  unzip "${PARENT}" "lib*"
-  cd "${ROOT}"
+  # The below functions add files to be backed up by addon.d
+  # Need to be called before make_addond_script
+  add_default_perms "${BASE}" "com.android.vending" "FAKE_PACKAGE_SIGNATURE"
+  add_default_perms "${BASE}" "com.google.android.gms" "FAKE_PACKAGE_SIGNATURE;ACCESS_COARSE_LOCATION;ACCESS_FINE_LOCATION;READ_PHONE_STATE;AUTHENTICATE_ACCOUNTS;GET_ACCOUNTS;MANAGE_ACCOUNTS;USE_CREDENTIALS;WAKE_LOCK;WRITE_EXTERNAL_STORAGE;READ_EXTERNAL_STORAGE;INSTALL_LOCATION_PROVIDER"
+  extract_microg_libs "${BASE}${GMS_DEST}"
+  doze_whitelist "com.google.android.gms"
+  save_sysconfig_options "${BASE}"
+
+  make_addond_script "${BASE}" "${GMS_DEST};${GSF_DEST};${PLAYSTORE_DEST};"
 
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_microg_with_playstore() {
+  reset
+
   if [ verify_url "${GMS_SRC}" &>/dev/null ]; then exit 1; fi;
   if [ verify_url "${GSF_SRC}"  &>/dev/null ]; then exit 1; fi;
   if [ verify_url "${PLAYSTORE_SRC}"  &>/dev/null ]; then exit 1; fi;
@@ -68,29 +100,44 @@ build_microg_with_playstore() {
   download_source "${GSF_SRC}" "${BASE}${GSF_DEST}"
   download_source "${PLAYSTORE_SRC}" "${BASE}${PLAYSTORE_DEST}"
 
-local SCRIPT=$(cat <<EOF
-ui_print("Removing any conflicting apps");
-delete_recursive("/system/app/GmsCore", "/system/priv-app/GmsCore", "/system/priv-app/GmsCore_update", "/system/app/PrebuiltGmsCore", "/system/priv-app/PrebuiltGmsCore", "/system/priv-app/GmsCoreSetupPrebuilt");
-delete_recursive("/system/priv-app/PlayStore", "/system/priv-app/FakeStore", "/system/priv-app/Phonesky");
-delete_recursive("/system/app/GsfProxy", "/system/priv-app/GoogleServicesFramework", "/system/priv-app/GoogleLoginService");
-EOF
-)
+  # Remove any conflicting gapps installs
+  updater_remove_files "/system/app/GmsCore"
+  updater_remove_files "/system/priv-app/GmsCore"
+  updater_remove_files "/system/priv-app/GmsCore_update"
+  updater_remove_files "/system/app/PrebuiltGmsCore"
+  updater_remove_files "/system/priv-app/PrebuiltGmsCore"
+  updater_remove_files "/system/priv-app/GmsCoreSetupPrebuilt"
+  updater_remove_files "/system/priv-app/PlayStore"
+  updater_remove_files "/system/priv-app/FakeStore"
+  updater_remove_files "/system/priv-app/Phonesky"
+  updater_remove_files "/system/app/GsfProxy"
+  updater_remove_files "/system/priv-app/GoogleServicesFramework"
+  updater_remove_files "/system/priv-app/GoogleLoginService"
 
-  make_updater_script "${BASE}" "${SCRIPT}"
-  make_addond_script "${BASE}" "${GMS_DEST};${GSF_DEST};${PLAYSTORE_DEST};/system/app/GmsCore/lib/x86/libvtm-jni.so;/system/app/GmsCore/lib/x86_64/libvtm-jni.so;/system/app/GmsCore/lib/arm64-v8a/libvtm-jni.so;/system/app/GmsCore/lib/armeabi/libvtm-jni.so;/system/app/GmsCore/lib/armeabi-v7a/libvtm-jni.so"
+  addond_backup_file "${GMS_DEST}"
+  addond_backup_file "${GSF_DEST}"
+  addond_backup_file "${PLAYSTORE_DEST}"
 
-  # Unzip the microG library because we're installing to /system
-  local ROOT="$(pwd)"
-  PARENT="${BASE}${GMS_DEST}"
-  cd "${PARENT%/*}"
-  unzip "${PARENT}" "lib*"
-  cd "${ROOT}"
+  make_updater_script "${BASE}"
+
+  # The below functions add files to be backed up by addon.d
+  # Need to be called before make_addond_script
+  add_default_perms "${BASE}" "com.android.vending" "FAKE_PACKAGE_SIGNATURE"
+  add_default_perms "${BASE}" "com.google.android.gms" "FAKE_PACKAGE_SIGNATURE;ACCESS_COARSE_LOCATION;ACCESS_FINE_LOCATION;READ_PHONE_STATE;AUTHENTICATE_ACCOUNTS;GET_ACCOUNTS;MANAGE_ACCOUNTS;USE_CREDENTIALS;WAKE_LOCK;WRITE_EXTERNAL_STORAGE;READ_EXTERNAL_STORAGE;INSTALL_LOCATION_PROVIDER"
+  extract_microg_libs "${BASE}${GMS_DEST}"
+  doze_whitelist "com.google.android.gms"
+  save_sysconfig_options "${BASE}"
+
+  # Make addon.d script using generated ADDOND_FILES
+  make_addond_script "${BASE}"
 
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_standalone_playstore() {
+  reset
+
   # Test the URL first
   if [ verify_url "${PLAYSTORE_SRC}"  &>/dev/null ]; then exit 1; fi;
 
@@ -100,20 +147,26 @@ build_standalone_playstore() {
   make_parents "${BASE}${PLAYSTORE_DEST}"
   download_source "${PLAYSTORE_SRC}" "${BASE}${PLAYSTORE_DEST}"
 
-local SCRIPT=$(cat <<EOF
-ui_print("Removing any conflicting apps");
-delete_recursive("/system/priv-app/PlayStore", "/system/priv-app/FakeStore", "/system/priv-app/Phonesky");
-EOF
-)
+  updater_remove_files "/system/priv-app/PlayStore"
+  updater_remove_files "/system/priv-app/FakeStore"
+  updater_remove_files "/system/priv-app/Phonesky"
 
-  make_updater_script "${BASE}" "${SCRIPT}"
-  make_addond_script "${BASE}" "${FAKESTORE_DEST}"
+  addond_backup_file "${PLAYSTORE_DEST}"
+
+  add_default_perms "${BASE}" "com.android.vending" "FAKE_PACKAGE_SIGNATURE"
+
+  make_updater_script "${BASE}"
+
+  make_addond_script "${BASE}"
+
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"
 }
 
 build_microg_with_playstore
+echo
 build_microg_without_playstore
+echo
 build_standalone_playstore
 
 clean_up

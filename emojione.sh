@@ -8,6 +8,7 @@ EMOJIONE_SRC="https://github.com/Ranks/emojione/blob/master/extras/fonts/emojion
 EMOJIONE_DEST="/system/fonts/NotoColorEmoji.ttf"
 
 build_emojione() {
+  reset
   # Check if the URL is valid. If not, exit.
   if [ verify_url "${EMOJIONE_SRC}"  &>/dev/null ]; then exit 1; fi;
   # The base name of the zip file
@@ -21,7 +22,9 @@ build_emojione() {
   # Make an updater script for a zip at $BASE
   make_updater_script "${BASE}"
   # Make an addon.d script under $BASE to keep the file between upgrades
-  make_addond_script "${BASE}" "${EMOJIONE_DEST}"
+  addond_backup_file "${EMOJIONE_DEST}"
+
+  make_addond_script "${BASE}"
   # Zip the folder
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   # Make an MD5SUM file

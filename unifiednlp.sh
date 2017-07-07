@@ -15,6 +15,7 @@ NOM_SRC="https://f-droid.org/repo/org.microg.nlp.backend.nominatim_20042.apk"
 NOM_DEST="/system/app/NominatimNlpBackend/NominatimNlpBackend.apk"
 
 build_unifiednlp() {
+  reset
   # Verify URLs
   if [ verify_url "${UNLP_SRC}" &>/dev/null ]; then exit 1; fi;
   if [ verify_url "${MOZ_SRC}"  &>/dev/null ]; then exit 1; fi;
@@ -45,8 +46,14 @@ assert(run_program("/system/bin/sh", "-c", "test ! -d /system/priv-app/GmsCoreSe
 EOF
 )
 
+  add_default_perms "${BASE}" "com.google.android.gms" "ACCESS_COARSE_LOCATION;ACCESS_COARSE_UPDATES;INSTALL_LOCATION_PROVIDER"
+
   make_updater_script "${BASE}" "${SCRIPT}"
-  make_addond_script "${BASE}" "${UNLP_DEST};${MOZ_DEST};${NOM_DEST}"
+
+  addond_backup_file "${UNLP_DEST}"
+  addond_backup_file "${MOZ_DEST}"
+  addond_backup_file "${NOM_DEST}"
+  make_addond_script "${BASE}"
 
   zip_folder "${BASE}" "${DEST}${ZIP_NAME}"
   make_md5sum_file "${DEST}${ZIP_NAME}.zip"

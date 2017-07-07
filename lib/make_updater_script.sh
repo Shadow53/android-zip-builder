@@ -1,3 +1,11 @@
+updater_remove_files() {
+  if [ -z "${UPDATER_REMOVE}" ]; then
+    UPDATER_REMOVE="ui_print(\"Deleting unwanted or conflicting files\")"
+  fi
+  UPDATER_REMOVE="${UPDATER_REMOVE}
+delete_recursive(\"${1}\");"
+}
+
 make_updater_script() {
   UPDATER_FOLDER="${1}/META-INF/com/google/android"
   mkdir -p "${UPDATER_FOLDER}"
@@ -11,6 +19,7 @@ ifelse(is_mounted("/system"), unmount("/system"));
 run_program("/sbin/busybox", "mount", "/system");
 
 $EXTRA_COMMANDS
+$UPDATER_REMOVE
 
 ui_print("Extracting to /system");
 assert(package_extract_dir("system", "/system") == "t");

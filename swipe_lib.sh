@@ -20,7 +20,6 @@ LATINIMEGOOGLE_32_DEST="/system/lib/libjni_latinimegoogle.so"
 LATINIMEGOOGLE_64_DEST="/system/lib64/libjni_latinimegoogle.so"
 
 build_swipe_lib_arm() {
-  reset
   ZIP_NAME="swipelib-arm"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
@@ -36,7 +35,6 @@ build_swipe_lib_arm() {
 }
 
 build_swipe_lib_arm64() {
-  reset
   ZIP_NAME="swipelib-arm64"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"
@@ -52,7 +50,6 @@ build_swipe_lib_arm64() {
 }
 
 build_swipe_lib_x86() {
-  reset
   ZIP_NAME="swipelib-x86"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_32_DEST}"
@@ -68,7 +65,6 @@ build_swipe_lib_x86() {
 }
 
 build_swipe_lib_x86_64() {
-  reset
   ZIP_NAME="swipelib-x86_64"
   BASE="${TMP}${ZIP_NAME}"
   make_parents "${BASE}${KEYBOARDDECODER_64_DEST}"

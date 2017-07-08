@@ -8,7 +8,6 @@ EMOJIONE_SRC="https://github.com/Ranks/emojione/blob/master/extras/fonts/emojion
 EMOJIONE_DEST="/system/fonts/NotoColorEmoji.ttf"
 
 build_emojione() {
-  reset
   # Check if the URL is valid. If not, exit.
   if [ verify_url "${EMOJIONE_SRC}"  &>/dev/null ]; then exit 1; fi;
   # The base name of the zip file

@@ -1,57 +1,69 @@
-add_default_perms() {
+set_perms_app() {
+  if [ -z "${DEFAULT_PERMS_STRING}" ]; then
+    DEFAULT_PERMS_STRING=$"<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<exceptions>"
+  else
+    # Assume we are adding a new app's permissions, end the last's xml
+    DEFAULT_PERMS_STRING="${DEFAULT_PERMS_STRING}
+  </exception>"
+  fi
+  DEFAULT_PERMS_STRING=$"${DEFAULT_PERMS_STRING}
+  <exception package=\"${1}\" >"
+}
+
+add_permission() {
+  local NEW_PERMISSION
+  NEW_PERMISSION=""
+  if grep -q "." <<< "${1}"; then
+    NEW_PERMISSION="${1}"
+  else
+    NEW_PERMISSION="android.permission.${1}"
+  fi
+  DEFAULT_PERMS_STRING="${DEFAULT_PERMS_STRING}
+    <permission name=\"${NEW_PERMISSION}\" fixed=\"false\" />"
+}
+
+write_perms_file() {
+  # End last app's permissions
+  DEFAULT_PERMS_STRING="${DEFAULT_PERMS_STRING}
+  </exception>
+</exceptions>"
+
   local BASE="${1}"
-  local PKG_NAME="${2}"
-  local FILE_ROOT="${BASE}"
-  local FILE_NAME="/system/etc/default-permissions/${PKG_NAME}-permissions.xml"
+  local ZIP_NAME="${2}"
+  local FILE_NAME="/system/etc/default-permissions/${ZIP_NAME}-permissions.xml"
   local FULL_FILE_NAME="${BASE}${FILE_NAME}"
   make_parents "${FULL_FILE_NAME}"
-  local PERMS=""
-  while IFS=';' read -ra ADDR; do
-      for item in "${ADDR[@]}"; do
-          PERMS=$"${PERMS}
-<permission name=\"android.permission.${item}\" fixed=\"false\"/>"
-      done
-  done <<< "${3}"
-
-cat > "${FULL_FILE_NAME}" <<EOT
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<!--
-    This file contains permissions to be granted by default. Default
-    permissions are granted to special platform components and to apps
-    that are approved to get default grants. The special components
-    are apps that are expected to work out-of-the-box as they provide
-    core use cases. Granting these permissions could prevent issues on
-    some ROMs or non-clean installations.
--->
-
-<exceptions>
-  <exception package="${PKG_NAME}">${PERMS}
-  </exception>
-</exceptions>
-EOT
+  echo "${DEFAULT_PERMS_STRING}" > "${FULL_FILE_NAME}"
   addond_backup_file "${FILE_NAME}"
+  # Reset global vars
+  DEFAULT_PERMS_STRING=""
 }
 
 doze_whitelist() {
   #allow-in-power-save
   #allow-in-data-usage-save
   #allow-in-power-save-except-idle
+  echo "Adding ${1} to Doze whitelist"
   DOZE_WHITELIST=$"${DOZE_WHITELIST}
-<allow-in-power-save package=\"${1}\"/>
-<allow-in-data-usage-save package=\"${1}\"/>"
+    <allow-in-power-save package=\"${1}\" />
+    <allow-in-data-usage-save package=\"${1}\" />"
 }
 
 system_user_whitelist() {
+  echo "Granting system user to ${1}"
   SYSTEM_USER_WHITELIST_APPS=$"${SYSTEM_USER_WHITELIST_APPS}
-<system-user-whitelisted-app package=\"${1}\"/>"
+    <system-user-whitelisted-app package=\"${1}\" />"
 }
 
 system_user_blacklist() {
+  echo "Removing system user from ${1}"
   SYSTEM_USER_BLACKLIST_APPS=$"${SYSTEM_USER_BLACKLIST_APPS}
-<system-user-blacklisted-app package=\"${1}\"/>"
+    <system-user-blacklisted-app package=\"${1}\" />"
 }
 
 save_sysconfig_options() {
+  echo "Saving sysconfig options (Doze, system user)"
   local BASE="${1}"
   local BASE_NAME
   if [ -n "${ZIP_NAME}" ]; then
@@ -59,13 +71,13 @@ save_sysconfig_options() {
   else
     BASE_NAME="custom"
   fi
-  local FILE_NAME="/system/etc/sysconfig/${BASE_NAME}.xml"
+  local FILE_NAME="/system/etc/sysconfig/google.xml"
   local FULL_FILE_NAME="${BASE}${FILE_NAME}"
   make_parents "${FULL_FILE_NAME}"
 
 cat > "${FULL_FILE_NAME}" <<EOT
-  <?xml version="1.0" encoding="utf-8"?>
-  <config>
+<?xml version="1.0" encoding="utf-8"?>
+<config>
     <!-- These are the standard packages that are white-listed to always have internet
          access while in power save mode, even if they aren't in the foreground. -->
     ${DOZE_WHITELIST}
@@ -78,4 +90,8 @@ cat > "${FULL_FILE_NAME}" <<EOT
 </config>
 EOT
   addond_backup_file "${FILE_NAME}"
+  # Reset global vars
+  DOZE_WHITELIST=""
+  SYSTEM_USER_WHITELIST_APPS=""
+  SYSTEM_USER_BLACKLIST_APPS=""
 }

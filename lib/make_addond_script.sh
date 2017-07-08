@@ -1,4 +1,5 @@
 addond_backup_file() {
+  echo "Adding ${1} to addon.d backup files"
   # Add the item to the list
   local PREFIX="/system/"
   ADDOND_BACKUP_FILES=$"${ADDOND_BACKUP_FILES}
@@ -6,17 +7,19 @@ ${1##$PREFIX}"
 }
 
 addond_remove_file() {
+  echo "Adding ${1} to addon.d remove files"
   ADDOND_REMOVE_FILES=$"${ADDOND_REMOVE_FILES}
 rm -rf ${1}"
 }
 
 make_addond_script() {
+  echo "Generating addon.d script"
   # Don't make file if nothing is saved
-  if [ -n "{$ADDOND_BACKUP_FILES}" ]; then
-    ADDOND_FOLDER="${1}/system/addon.d"
+  if [ -n "${ADDOND_BACKUP_FILES}" ] || [ -n "${ADDOND_REMOVE_FILES}" ]; then
+    local ADDOND_FOLDER="${1}/system/addon.d"
     mkdir -p "${ADDOND_FOLDER}"
     local file_name="${1##*/}"
-    ADDOND_DEST="${ADDOND_FOLDER}/01-${file_name}.sh" # Should pull the zip's name without .zip
+    local ADDOND_DEST="${ADDOND_FOLDER}/01-${file_name}.sh" # Should pull the zip's name without .zip
     # Define ADDOND_BACKUP_FILES so that they can be concat'd with a prefix "/system/"
     # For now, just code the newlines into the argument
 
@@ -67,5 +70,8 @@ case "\$1" in
   ;;
 esac
 EOT
+  # Reset global vars
+  ADDOND_BACKUP_FILES=""
+  ADDOND_REMOVE_FILES=""
 fi
 }

@@ -1,12 +1,3 @@
-reset() {
-  ADDOND_BACKUP_FILES=""
-  ADDOND_REMOVE_FILES=""
-  UPDATER_REMOVE=""
-  DOZE_WHITELIST=""
-  SYSTEM_USER_WHITELIST_APPS=""
-  SYSTEM_USER_BLACKLIST_APPS=""
-}
-
 download_source() {
   local SRC="${1}"
   local DEST="${2}"
@@ -34,6 +25,7 @@ zip_folder() {
 }
 
 make_parents() {
+  echo "Attempting to create parent folders for ${1}"
   mkdir -p "${1%/*}"
 }
 

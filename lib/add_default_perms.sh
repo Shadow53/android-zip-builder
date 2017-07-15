@@ -14,7 +14,7 @@ set_perms_app() {
 add_permission() {
   local NEW_PERMISSION
   NEW_PERMISSION=""
-  if grep -q "." <<< "${1}"; then
+  if [ -z "${1##*.*}" ]; then
     NEW_PERMISSION="${1}"
   else
     NEW_PERMISSION="android.permission.${1}"
@@ -24,20 +24,22 @@ add_permission() {
 }
 
 write_perms_file() {
-  # End last app's permissions
-  DEFAULT_PERMS_STRING="${DEFAULT_PERMS_STRING}
+  if [ -n "${DEFAULT_PERMS_STRING}" ]; then
+    # End last app's permissions
+    DEFAULT_PERMS_STRING="${DEFAULT_PERMS_STRING}
   </exception>
 </exceptions>"
 
-  local BASE="${1}"
-  local ZIP_NAME="${2}"
-  local FILE_NAME="/system/etc/default-permissions/${ZIP_NAME}-permissions.xml"
-  local FULL_FILE_NAME="${BASE}${FILE_NAME}"
-  make_parents "${FULL_FILE_NAME}"
-  echo "${DEFAULT_PERMS_STRING}" > "${FULL_FILE_NAME}"
-  addond_backup_file "${FILE_NAME}"
-  # Reset global vars
-  DEFAULT_PERMS_STRING=""
+    local BASE="${1}"
+    local ZIP_NAME="${2}"
+    local FILE_NAME="/system/etc/default-permissions/${ZIP_NAME}-permissions.xml"
+    local FULL_FILE_NAME="${BASE}${FILE_NAME}"
+    make_parents "${FULL_FILE_NAME}"
+    echo "${DEFAULT_PERMS_STRING}" > "${FULL_FILE_NAME}"
+    addond_backup_file "${FILE_NAME}"
+    # Reset global vars
+    DEFAULT_PERMS_STRING=""
+  fi
 }
 
 doze_whitelist() {
@@ -71,7 +73,7 @@ save_sysconfig_options() {
   else
     BASE_NAME="custom"
   fi
-  local FILE_NAME="/system/etc/sysconfig/google.xml"
+  local FILE_NAME="/system/etc/sysconfig/${BASE_NAME}.xml"
   local FULL_FILE_NAME="${BASE}${FILE_NAME}"
   make_parents "${FULL_FILE_NAME}"
 
